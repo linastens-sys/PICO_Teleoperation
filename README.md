@@ -4,40 +4,10 @@ This documents the **whole-body** Pico → G1 teleop pipeline: TWIST2's own GMR
 retargeter driving TWIST2's pretrained whole-body tracking checkpoint
 (`twist2_1017_20k.onnx`), on-robot via `g1_ctrl`'s `Twist2` FSM state.
 
-**This is a different system from mjlab's own `Teleop` FSM state**, and has
-no runtime dependency on mjlab at all — this repo is self-contained,
+This repo is self-contained,
 built for a brand-new dev machine with nothing installed yet. The Pico
 headset and the G1 robot are assumed already set up and unchanged from
-their current working state.
-
----
-## 0. What's in this repo
-
-Everything the pipeline needs is **included directly** — no cloning from
-source at setup time. This matters for one specific reason: the *upstream*
-`TWIST2`/`GMR` repos still have their IsaacGym-dependent training code
-mixed in (`legged_gym/`, `rsl_rl/`, and one `vis_robot_urdf.py` script in
-GMR's `scripts/`) — a fresh `git clone` of either would pull that in. What's
-vendored here is a **deployment-only slice** with the IsaacGym-dependent
-pieces left out entirely, verified with a repo-wide grep for `isaacgym`
-(the only two hits left are a doc line and a comment noting a prior removal
-— nothing actually imports it):
-
-- **`TWIST2/`** (~65MB) — `deploy_real/` (the live-teleop + sim scripts,
-  including a local fix already applied to `server_low_level_g1_sim.py` —
-  the `.bak` alongside it is the pre-fix original, kept for reference) plus
-  `assets/g1/` (MuJoCo XMLs) and `assets/ckpts/` (the trained checkpoints).
-  No `legged_gym/`/`rsl_rl/` (IsaacGym training code, not used here).
-- **`GMR/`** (~53MB) — the `general_motion_retargeting` engine package plus
-  just the G1 robot assets. Upstream's own repo is ~1.5GB because it bundles
-  assets for a dozen *other* robots we don't need; this is trimmed to only
-  G1. No `scripts/` (that's where the one IsaacGym import lived, and none
-  of those scripts are used by the live pipeline anyway).
-- **`Pico-Pybind/`** (~2MB source) — the XRoboToolkit pybind SDK source
-  (headers + bindings + `setup.py`). Built locally in §1 against your
-  machine's installed PC service — `lib/` starts empty and is populated by
-  `setup.sh`, not vendored, since the prebuilt `.so` is specific to
-  whatever PC-service version is installed on a given machine.
+their current working state. If you are looking to modify the pico or g1 setup, see the linastens-sys/sparc repo for full comprehensive documentation. 
 
 ---
 ## 1. One-time software setup
@@ -76,19 +46,21 @@ uv run python Pico-Pybind/examples/example.py
 
 ## 2. Every-session Pico headset connection
 
-The Pico connects to the dev machine over **USB, not WiFi** (campus/shared
-WiFi puts the two devices on isolated subnets). This has to be redone each
+The Pico connects to the dev machine over **USB, not WiFi**. This has to be redone each
 session because the USB gadget interface name and IP drift between
 connections.
+1. **Start Headset, Cntrollers and Trackers:**
+  - Turn headset and controllers on.
+  - Strap tracking pucks to ankles. Calibrate them in the tracker app (you may need to un-pair and re-pair). 
 
-1. **Launch the PC service** (does not auto-start):
+2. **Launch the PC service** (does not auto-start):
    ```bash
    bash /opt/apps/roboticsservice/runService.sh
    ```
    Confirm it's listening: `ss -tulnp | grep 63901` should show
    `RoboticsService`.
 
-2. **Plug the Pico in via USB.** Find the interface it created and its IP:
+3. **Plug the Pico in via USB.** Find the interface it created and its IP:
    ```bash
    ip -br addr
    ```
@@ -96,13 +68,13 @@ connections.
    **this name and IP change every session**, don't reuse a value from a
    previous run.
 
-3. **Open the firewall for that interface** (scope it to the interface, not
+4. **Open the firewall for that interface** (scope it to the interface, not
    individual ports — the service negotiates dynamic RTC ports too):
    ```bash
    sudo ufw allow in on <your-enx-interface> && sudo ufw reload
    ```
 
-4. **On the headset**: turn Pico WiFi **off**. In the XRoboToolkit app,
+5. **On the headset**: turn Pico WiFi **off**. In the XRoboToolkit app,
    connect to the PC's IP from step 2. Enable:
    - **Head** tracking
    - **Controller** tracking
@@ -110,7 +82,7 @@ connections.
      the GMR retargeter needs for leg tracking)
    - **Send**
 
-5. **Verify live data** before touching the actual pipeline:
+6. **Verify live data** before touching the actual pipeline:
    ```bash
    uv run python Pico-Pybind/examples/example_body_tracking.py
    ```
@@ -183,7 +155,7 @@ ssh unitree@192.168.123.164
 ```
 
 
-select 1 for foxy
+Select 1 for foxy
 
 ```bash
 cd ~/Documents/Physics-Based-Walker/deploy/robots/g1/build
@@ -196,11 +168,10 @@ until this is running.
 
 ### 4c. Bring the robot to a safe standing state
 
-On the physical controller: **L2 + Up** → `FixStand`.
+On the physical controller: **L2 + Up** → `FixStand`. For controller commands, hold the first button while tapping the second once to switch between states.
+### 4d. Enter the `Twist2 Teleop` FSM state
 
-### 4d. Enter the `Twist2` FSM state
-
-From `FixStand`: **RB + A**.
+From `FixStand`: **R1 + A**.
 
 **⚠️ Legs are live in this state.** Per the config comment in
 `Physics-Based-Walker-main/deploy/robots/g1/config/config.yaml`: *"first
@@ -213,8 +184,8 @@ robot holds its default standing pose — `State_Twist2` logs "waiting for
 first rt/mimic_obs frame" and just stands there. That's expected, not a
 failure.
 
-Exit paths from this state: **LT + B** → `Passive` (safe stop, use this if
-anything looks wrong), **RT + A** → back to `FixStand`.
+Exit paths from this state: **L2 + B** → `Passive` (safe stop, use this if
+anything looks wrong), **R2 + A** → back to `FixStand` (Note: This is a different FixStand command than it was from the passive state).
 
 ### 4e. Dev machine: start the GMR teleop + DDS bridge
 
@@ -257,11 +228,11 @@ streaming).
 ### 4f. Go live
 
 Same as sim: on the headset, **right controller A button** to cycle into
-active teleop. You may need to click reconnect in the XroboToolkit app. Watch the robot closely — start with small, slow motions,
+active teleop. You may need to click reconnect in the XroboToolkit app. Enusure the viewer shows the G1 in the starting position before switching to live teleop. Watch the robot closely — start with small, slow motions,
 confirm arm tracking first, then confirm leg/stance tracking before doing
 anything involving actual stepping.
 
-**If anything looks wrong**: LT + B on the controller → `Passive` immediately.
+**If anything looks wrong**: L2 + B on the controller → `Passive` immediately.
 
 ---
 
@@ -296,11 +267,3 @@ anything involving actual stepping.
 
 ---
 
-## Open items for you to fill in / correct
-
-- [ ] §0/§1b: confirm `setup.sh` actually runs clean on a genuinely fresh
-      machine (it's adapted from a working setup, not yet run start-to-finish
-      as this standalone script)
-- [ ] §4b: confirm robot filesystem path + network interface name are still current
-- [ ] Whatever else breaks in practice — this is a first draft to be
-      corrected against reality, not a finished runbook.
