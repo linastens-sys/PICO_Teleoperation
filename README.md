@@ -7,7 +7,7 @@ retargeter driving TWIST2's pretrained whole-body tracking checkpoint
 This repo is self-contained,
 built for a brand-new dev machine with nothing installed yet. The Pico
 headset and the G1 robot are assumed already set up and unchanged from
-their current working state. If you are looking to modify the pico or g1 setup, see the linastens-sys/sparc repo for full comprehensive documentation. 
+their current working state. If you are looking to modify the Pico or G1 setup, see the linastens-sys/sparc repo for full comprehensive documentation. 
 
 ---
 ## 1. One-time software setup
