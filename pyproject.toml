@@ -1,0 +1,30 @@
+[project]
+name = "pico-teleoperation"
+version = "0.1.0"
+description = "Pico 4 Ultra full-body teleop pipeline for the Unitree G1 (TWIST2 + GMR)."
+requires-python = ">=3.10"
+dependencies = [
+  # mimic_obs_bridge.py: Redis -> DDS bridge.
+  "redis",
+  "cyclonedds",
+  # TWIST2's deploy_real/ scripts and GMR both need these; GMR's own
+  # setup.py pulls most of this in too when installed with `pip install -e`,
+  # listed explicitly here so `uv sync` alone is enough before that step.
+  "mujoco",
+  "numpy",
+  "scipy",
+  "loop_rate_limiters",
+  "mink",
+  "qpsolvers[proxqp]",
+  "opencv-python",
+  "natsort",
+  "rich",
+  "tqdm",
+  "torch",
+  "onnxruntime",
+]
+
+[tool.uv.sources]
+# GMR itself is installed separately (pip install -e GMR/) after the sparse
+# clone in setup.sh -- not listed here as a path dependency since the clone
+# doesn't exist until setup.sh runs.
