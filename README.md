@@ -11,30 +11,33 @@ headset and the G1 robot are assumed already set up and unchanged from
 their current working state.
 
 ---
-## 0. Downloading what you need
+## 0. What's in this repo
 
-Everything this pipeline actually runs on is its own independent public
-repo — nothing here is vendored, so a fresh clone stays small:
+Everything the pipeline needs is **included directly** — no cloning from
+source at setup time. This matters for one specific reason: the *upstream*
+`TWIST2`/`GMR` repos still have their IsaacGym-dependent training code
+mixed in (`legged_gym/`, `rsl_rl/`, and one `vis_robot_urdf.py` script in
+GMR's `scripts/`) — a fresh `git clone` of either would pull that in. What's
+vendored here is a **deployment-only slice** with the IsaacGym-dependent
+pieces left out entirely, verified with a repo-wide grep for `isaacgym`
+(the only two hits left are a doc line and a comment noting a prior removal
+— nothing actually imports it):
 
-```bash
-./setup.sh
-```
-
-This does the following, so you know what to expect (and can run any step
-by hand if `setup.sh` needs adjusting):
-
-- **TWIST2** (`amazon-far/TWIST2`, ~107MB) — shallow clone (`--depth 1`),
-  it's already small enough not to need trimming.
-- **GMR** (`YanjieZe/GMR`) — its own repo is ~1.5GB, but ~1.2GB of that is
-  *other robots'* assets we don't need. A partial + sparse clone
-  (`--filter=blob:none --sparse`, then `git sparse-checkout set` to just
-  the retargeting engine + G1 assets) pulls only ~54MB.
-- **The Pico pybind SDK** (`YanjieZe/XRoboToolkit-PC-Service-Pybind`) —
-  shallow clone, then built locally against the PC service (§1a).
-- Python deps via `uv sync` (see `pyproject.toml`), plus `GMR` installed
-  `--no-deps` (its own `setup.py` pulls a `smplx` git dependency we don't
-  need for the xrobot→G1 path — the leaf deps it actually needs are
-  already pinned in `pyproject.toml`).
+- **`TWIST2/`** (~65MB) — `deploy_real/` (the live-teleop + sim scripts,
+  including a local fix already applied to `server_low_level_g1_sim.py` —
+  the `.bak` alongside it is the pre-fix original, kept for reference) plus
+  `assets/g1/` (MuJoCo XMLs) and `assets/ckpts/` (the trained checkpoints).
+  No `legged_gym/`/`rsl_rl/` (IsaacGym training code, not used here).
+- **`GMR/`** (~53MB) — the `general_motion_retargeting` engine package plus
+  just the G1 robot assets. Upstream's own repo is ~1.5GB because it bundles
+  assets for a dozen *other* robots we don't need; this is trimmed to only
+  G1. No `scripts/` (that's where the one IsaacGym import lived, and none
+  of those scripts are used by the live pipeline anyway).
+- **`Pico-Pybind/`** (~2MB source) — the XRoboToolkit pybind SDK source
+  (headers + bindings + `setup.py`). Built locally in §1 against your
+  machine's installed PC service — `lib/` starts empty and is populated by
+  `setup.sh`, not vendored, since the prebuilt `.so` is specific to
+  whatever PC-service version is installed on a given machine.
 
 ---
 ## 1. One-time software setup
@@ -61,11 +64,12 @@ further config needed at install time — launching is a per-session step
 ./setup.sh
 ```
 
-See §0 above for exactly what this fetches/builds. Verify the pybind SDK
-built correctly:
+Installs Python deps, installs `GMR` in editable mode, copies the Pico SDK
+library out of the now-installed PC service, and builds the pybind
+extension against it. Verify it built correctly:
 
 ```bash
-uv run python XRoboToolkit-PC-Service-Pybind/examples/example.py
+uv run python Pico-Pybind/examples/example.py
 ```
 
 ---
@@ -108,7 +112,7 @@ connections.
 
 5. **Verify live data** before touching the actual pipeline:
    ```bash
-   uv run python XRoboToolkit-PC-Service-Pybind/examples/example_body_tracking.py
+   uv run python Pico-Pybind/examples/example_body_tracking.py
    ```
    You should see left/right ankle (joints 7/8) and foot (10/11) poses
    updating live as you move. If everything reads all-zero, the headset is

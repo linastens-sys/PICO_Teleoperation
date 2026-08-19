@@ -25,6 +25,7 @@ dependencies = [
 ]
 
 [tool.uv.sources]
-# GMR itself is installed separately (pip install -e GMR/) after the sparse
-# clone in setup.sh -- not listed here as a path dependency since the clone
-# doesn't exist until setup.sh runs.
+# GMR itself is installed separately (uv pip install --no-deps -e GMR/) by
+# setup.sh, not listed here as a path dependency -- it's --no-deps precisely
+# so its own setup.py (which pulls a `smplx` git dependency this pipeline
+# doesn't need) doesn't get pulled into `uv sync`.

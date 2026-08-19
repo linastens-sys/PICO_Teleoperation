@@ -1,12 +1,13 @@
-# Cloned by setup.sh -- fetched fresh each time, not vendored.
-/TWIST2/
-/GMR/
-/XRoboToolkit-PC-Service-Pybind/
-
 # Python
 __pycache__/
 *.pyc
 .venv/
+*.egg-info/
+
+# Built by setup.sh against this machine's installed PC service -- don't
+# vendor a prebuilt binary that might not match another machine's version.
+/Pico-Pybind/lib/*.so
+/Pico-Pybind/build/
 
 # Downloaded installer, machine-specific.
 *.deb
