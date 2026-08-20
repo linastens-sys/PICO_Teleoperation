@@ -130,10 +130,7 @@ scales the GMR retargeting to your body.
 to cycle the teleop state machine from idle into active teleop.
 
 You should now see the simulated G1 (in Terminal 1's viewer window) mirror
-your full-body motion, including legs/locomotion. Known limitation with
-only 2 ankle trackers (no full mocap suit): the solver *estimates*
-pelvis/hip pose, so leg fidelity is soft — root height and pitch can drift
-if the retargeter's calibration/`actual_human_height` isn't well tuned.
+your full-body motion, including legs/locomotion.
 
 ---
 
@@ -141,7 +138,7 @@ if the retargeter's calibration/`actual_human_height` isn't well tuned.
 
 ### 4a. Power on the G1 and connect
 
-Turn on the G1. Quick tap and hold the battery. Listen for "Zero-force Mode" before launching g1_ctrl. You will also need the standard G1 controller, so turn that on too. 
+Turn on the G1. Quick tap and hold the battery for three seconds. Listen for "Zero-force Mode" before launching g1_ctrl. You will also need the standard G1 controller, so turn that on too. 
 
 Confirm network connectivity to the robot's onboard computer once it's up:
 ```bash
@@ -189,7 +186,7 @@ anything looks wrong), **R2 + A** → back to `FixStand` (Note: This is a differ
 
 ### 4e. Dev machine: start the GMR teleop + DDS bridge
 
-Two terminals, from this repo's root (with the Pico already connected
+Two terminals (with the Pico already connected
 and streaming per §2):
 
 **Terminal 1 — TWIST2's GMR teleop**, same command as sim, `--redis_ip`
@@ -205,8 +202,7 @@ uv run python xrobot_teleop_to_robot_w_hand.py \
   --measure_fps 1
 ```
 
-**Terminal 2 — the Redis → DDS bridge** (from this repo's root, not
-`TWIST2/`):
+**Terminal 2 — the Redis → DDS bridge** :
 ```bash
 uv run python mimic_obs_bridge.py \
   --net <your-ethernet-interface-to-the-robot> \
@@ -228,7 +224,7 @@ streaming).
 ### 4f. Go live
 
 Same as sim: on the headset, **right controller A button** to cycle into
-active teleop. You may need to click reconnect in the XroboToolkit app. Enusure the viewer shows the G1 in the starting position before switching to live teleop. Watch the robot closely — start with small, slow motions,
+active teleop. You may need to click reconnect in the XRoboToolkit app. Enusure the viewer shows the G1 in the starting position before switching to live teleop. Watch the robot closely — start with small, slow motions,
 confirm arm tracking first, then confirm leg/stance tracking before doing
 anything involving actual stepping.
 
