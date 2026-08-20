@@ -42,6 +42,24 @@ extension against it. Verify it built correctly:
 uv run python Pico-Pybind/examples/example.py
 ```
 
+### 1c. Redis (used by the local teleop→robot bridge)
+
+```bash
+sudo apt update
+sudo apt install -y redis-server
+sudo systemctl enable --now redis-server
+```
+
+Everything in this pipeline talks to Redis on `localhost:6379` — `redis_ip`
+defaults to `localhost` in every script — so the stock config works as-is;
+no need to touch `/etc/redis/redis.conf` or bind `0.0.0.0` (that's only
+needed for `TWIST2`'s own cross-machine setup, not this repo's).
+
+Verify:
+```bash
+redis-cli ping   # expect PONG
+```
+
 ---
 
 ## 2. Every-session Pico headset connection
