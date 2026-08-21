@@ -156,7 +156,7 @@ your full-body motion, including legs/locomotion.
 
 ### 4a. Power on the G1 and connect
 
-This setup runs with ethernet connection between teh dev computer and the G1 Jetson Orin. Turn on the G1. Quick tap and hold the battery for three seconds. Listen for "Zero-force Mode" before launching g1_ctrl. You will also need the standard G1 controller, so turn that on too. 
+This setup runs with ethernet connection between the dev computer and the G1 Jetson Orin. Turn on the G1. Quick tap and hold the battery for three seconds. Listen for "Zero-force Mode" before launching g1_ctrl. You will also need the standard G1 controller, so turn that on too. 
 
 Confirm network connectivity to the robot's onboard computer once it's up:
 ```bash
