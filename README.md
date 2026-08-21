@@ -158,6 +158,13 @@ your full-body motion, including legs/locomotion.
 
 This setup runs with ethernet connection between the dev computer and the G1 Jetson Orin. Turn on the G1. Quick tap and hold the battery for three seconds. Listen for "Zero-force Mode" before launching g1_ctrl. You will also need the standard G1 controller, so turn that on too. 
 
+**One-time per dev machine**: give the Ethernet interface connected to the
+G1 a static IP in the robot's subnet (e.g. via your network manager, or
+`sudo ip addr add 192.168.123.222/24 dev <your-eth-interface>` for a
+one-off/non-persistent setup):
+- IP: `192.168.123.222`
+- Netmask: `255.255.255.0`
+
 Confirm network connectivity to the robot's onboard computer once it's up:
 ```bash
 ping 192.168.123.164
