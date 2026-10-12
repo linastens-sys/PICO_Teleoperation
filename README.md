@@ -31,6 +31,10 @@ further config needed at install time — launching is a per-session step
 ### 1b. Everything else
 
 ```bash
+# Activate the Python virtual environment
+source venv/bin/activate
+
+# Install Python dependencies and build the pybind extension
 ./setup.sh
 ```
 
