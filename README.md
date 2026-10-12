@@ -122,20 +122,7 @@ No G1, no SSH, no DDS — this runs entirely on the dev machine, GMR
 retargeting driving a simulated G1 over local Redis. Two terminals, both
 from this repo's root:
 
-**Terminal 1 — the simulated G1**, running the actual TWIST2 policy:
-```bash
-cd TWIST2/deploy_real
-uv run python server_low_level_g1_sim.py \
-  --xml ../assets/g1/g1_sim2sim_29dof.xml \
-  --policy ../assets/ckpts/twist2_1017_20k.onnx \
-  --device cpu \
-  --policy_frequency 100 \
-  --limit_fps 1
-```
-
-
-
-**Terminal 2 — the live Pico teleop**, publishing to the same local Redis:
+**Terminal 1 — the live Pico teleop**, publishing to the same local Redis:
 ```bash
 cd TWIST2/deploy_real
 uv run python xrobot_teleop_to_robot_w_hand.py \
@@ -149,10 +136,22 @@ uv run python xrobot_teleop_to_robot_w_hand.py \
 Replace `<YOUR_HEIGHT_METERS>` with your actual height (e.g. `1.75`) — this
 scales the GMR retargeting to your body.
 
+**Terminal 2 — the simulated G1**, running the actual TWIST2 policy:
+```bash
+cd TWIST2/deploy_real
+uv run python server_low_level_g1_sim.py \
+  --xml ../assets/g1/g1_sim2sim_29dof.xml \
+  --policy ../assets/ckpts/twist2_1017_20k.onnx \
+  --device cpu \
+  --policy_frequency 100 \
+  --limit_fps 1
+```
+
+
 **On the headset**: press the **right controller's A button** (`key_one`)
 to cycle the teleop state machine from idle into active teleop.
 
-You should now see the simulated G1 (in Terminal 1's viewer window) mirror
+You should now see the simulated G1 (in Terminal 2's viewer window) mirror
 your full-body motion, including legs/locomotion.
 
 ---
