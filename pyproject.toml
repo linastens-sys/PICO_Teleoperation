@@ -12,6 +12,7 @@ dependencies = [
   # listed explicitly here so `uv sync` alone is enough before that step.
   "mujoco",
   "numpy",
+  "pybind11",
   "scipy",
   "loop_rate_limiters",
   "mink",
