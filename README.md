@@ -73,7 +73,8 @@ session because the USB gadget interface name and IP drift between
 connections.
 1. **Start Headset, Cntrollers and Trackers:**
   - Turn headset and controllers on.
-  - Strap tracking pucks to ankles. Calibrate them in the tracker app (you may need to un-pair and re-pair). 
+  - Strap tracking pucks to ankles. Calibrate them in the tracker app (you may need to un-pair and re-pair).
+  - Turn PICO headset wifi **off**. 
 
 2. **Launch the PC service** (does not auto-start):
    ```bash
@@ -96,7 +97,7 @@ connections.
    sudo ufw allow in on <your-enx-interface> && sudo ufw reload
    ```
 
-5. **On the headset**: turn Pico WiFi **off**. In the XRoboToolkit app,
+5. **On the headset**: In the XRoboToolkit app,
    connect to the PC's IP from step 2. Enable:
    - **Head** tracking
    - **Controller** tracking
